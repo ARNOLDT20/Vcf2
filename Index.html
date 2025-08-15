@@ -958,6 +958,41 @@ END:VCARD
 
 `;
                 });
+                // Generate VCF from all contacts
+function generateVCFFile() {
+    if (contacts.length === 0) {
+        showNotification("No contacts to export", true);
+        return;
+    }
+
+    let vcfContent = '';
+    contacts.forEach(c => {
+        vcfContent += `BEGIN:VCARD\nVERSION:3.0\n`;
+        vcfContent += `FN:${c.name}\n`;
+        if (c.title) vcfContent += `TITLE:${c.title}\n`;
+        vcfContent += `TEL;TYPE=CELL:${c.phone}\n`;
+        vcfContent += `EMAIL:${c.email}\n`;
+        if (c.notes) vcfContent += `NOTE:${c.notes}\n`;
+        vcfContent += `END:VCARD\n`;
+    });
+
+    // Show preview
+    vcfPreview.textContent = vcfContent;
+
+    // Download file
+    const blob = new Blob([vcfContent], { type: 'text/vcard;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'contacts.vcf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showNotification("VCF file generated!");
+}
+
+// Hook button click
+generateVcf.addEventListener('click', generateVCFFile);
                 
                 // Create blob and download
                 const blob = new Blob([vcfContent], { type: 'text/vcard' });
